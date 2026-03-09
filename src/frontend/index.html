@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparateur de Contrats IA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-color), #e2e8f0);
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            color: var(--text-main);
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.025em;
+        }
+
+        p.subtitle {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .upload-section {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .upload-section {
+                flex-direction: column;
+            }
+        }
+
+        .upload-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .upload-col h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .upload-box {
+            position: relative;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background-color: var(--surface);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+
+        .upload-box:hover {
+            border-color: var(--primary);
+            background-color: #f5f3ff;
+            transform: translateY(-2px);
+        }
+
+        .upload-box input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-hint {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .file-info {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: var(--text-main);
+            word-break: break-all;
+            background: #f1f5f9;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            border: 1px solid var(--border);
+        }
+
+        .preview-container {
+            width: 100%;
+            height: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            display: none;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .btn-compare {
+            background-color: var(--primary);
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            padding: 1rem 3rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-compare:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-compare:disabled {
+            background-color: var(--border-hover);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #results {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+
+        /* Utilitaire pour masquer/afficher */
+        .hidden {
+            display: none !important;
+        }
+
+        .visible-flex {
+            display: flex !important;
+        }
+
+        .visible-block {
+            display: block !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Comparateur de Contrats IA</h1>
+            <p class="subtitle">Importez vos deux versions de contrats (PDF) pour analyser les modifications
+                sémantiques.</p>
+        </header>
+
+        <div class="upload-section">
+            <div class="upload-col">
+                <h3>Version Originale (V1)</h3>
+                <div class="upload-box" id="dropZone1">
+                    <input type="file" id="fileV1" accept="application/pdf">
+                    <div id="uploadContent1">
+                        <div class="upload-icon">📄</div>
+                        <div class="upload-text">Cliquez ou glissez le document ici</div>
+                        <div class="upload-hint">Format PDF uniquement</div>
+                    </div>
+                    <div class="file-info" id="fileInfo1">
+                        <div class="file-name" id="fileName1"></div>
+                        <div class="upload-hint">Cliquez pour modifier le fichier</div>
+                    </div>
+                </div>
+                <div class="preview-container" id="previewContainer1">
+                    <iframe id="preview1"></iframe>
+                </div>
+            </div>
+
+            <div class="upload-col">
+                <h3>Version Modifiée (V2)</h3>
+                <div class="upload-box" id="dropZone2">
+                    <input type="file" id="fileV2" accept="application/pdf">
+                    <div id="uploadContent2">
+                        <div class="upload-icon">📝</div>
+                        <div class="upload-text">Cliquez ou glissez le document ici</div>
+                        <div class="upload-hint">Format PDF uniquement</div>
+                    </div>
+                    <div class="file-info" id="fileInfo2">
+                        <div class="file-name" id="fileName2"></div>
+                        <div class="upload-hint">Cliquez pour modifier le fichier</div>
+                    </div>
+                </div>
+                <div class="preview-container" id="previewContainer2">
+                    <iframe id="preview2"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="compareBtn" class="btn-compare" disabled>Comparer les Contrats</button>
+        </div>
+
+        <div id="results">
+            <!-- Résultats ajoutés dynamiquement ici -->
+        </div>
+    </div>
+
+    <script>
+        const fileV1 = document.getElementById('fileV1');
+        const fileV2 = document.getElementById('fileV2');
+        const compareBtn = document.getElementById('compareBtn');
+
+        function setupUploadZone(inputId, dropZoneId, contentId, infoId, nameId, previewContId, previewFrameId) {
+            const input = document.getElementById(inputId);
+            const dropZone = document.getElementById(dropZoneId);
+            const content = document.getElementById(contentId);
+            const info = document.getElementById(infoId);
+            const name = document.getElementById(nameId);
+            const previewCont = document.getElementById(previewContId);
+            const previewFrame = document.getElementById(previewFrameId);
+
+            // Gérer la sélection de fichier
+            input.addEventListener('change', function () {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+
+                    if (file.type !== "application/pdf") {
+                        alert("Veuillez sélectionner un fichier PDF valide.");
+                        this.value = '';
+                        return;
+                    }
+
+                    // Mettre à jour l'interface
+                    content.classList.add('hidden');
+                    info.classList.add('visible-flex');
+                    name.textContent = file.name;
+
+                    // Prévisualisation du PDF
+                    const fileURL = URL.createObjectURL(file);
+                    previewFrame.src = fileURL;
+                    previewCont.classList.add('visible-block');
+
+                    checkFiles();
+                }
+            });
+
+            // Effets de drag-and-drop
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--primary)';
+                dropZone.style.backgroundColor = '#f5f3ff';
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--border)';
+                dropZone.style.backgroundColor = 'var(--surface)';
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--border)';
+                dropZone.style.backgroundColor = 'var(--surface)';
+
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    input.files = e.dataTransfer.files;
+                    // Déclencher manuellement l'événement change
+                    const event = new Event('change');
+                    input.dispatchEvent(event);
+                }
+            });
+        }
+
+        function checkFiles() {
+            if (fileV1.files.length > 0 && fileV2.files.length > 0) {
+                compareBtn.disabled = false;
+            } else {
+                compareBtn.disabled = true;
+            }
+        }
+
+        setupUploadZone('fileV1', 'dropZone1', 'uploadContent1', 'fileInfo1', 'fileName1', 'previewContainer1', 'preview1');
+        setupUploadZone('fileV2', 'dropZone2', 'uploadContent2', 'fileInfo2', 'fileName2', 'previewContainer2', 'preview2');
+
+        // Événement pour le bouton (à connecter au backend par la suite)
+        compareBtn.addEventListener('click', () => {
+            alert('Lancement de la comparaison (à implémenter avec le backend)');
+        });
+
+    </script>
+</body>
+
+</html>
