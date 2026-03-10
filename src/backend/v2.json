@@ -1,10 +1,26 @@
 [
     {
-        "title": "CORRIGE",
-        "content": "- TP : Design Pattern Factory Method\nJeu d'Aventure : Troll, Orc et Humain\n1. Analyse du probleme initial\nLe probleme majeur est le couplage fort entre la classe Simulateur et les classes concretes (Troll, Orc,\nHumain).\nEn utilisant un bloc 'if/else', on viole le principe Open/Closed : pour ajouter un 'Magicien', il faut modifier le\ncode existant du Simulateur, ce qui augmente le risque de bugs.\n2. Solution de Conception (UML)\nLa solution consiste a separer la creation (le 'comment') de l'utilisation (le 'quoi').\n- Produit (Interface/Abstract) : Personnage\n- Createur Abstrait : Simulateur (declare la Factory Method)\n- Createurs Concrets : SimulateurTroll, SimulateurOrc (decident de l'instanciation)\n3. Implementation Java\n// --- Classe Abstraite Simulateur (Le Createur) ---\nabstract class Simulateur {\n    private Personnage monPersonnage;\n    // Factory Method : deleguee aux sous-classes\n    public abstract Personnage creerPersonnage(String nom);\n    public void lancerSimulation(String nom) {\n        // Utilisation de l'abstraction pour la creation\n        this.monPersonnage = creerPersonnage(nom);\n        this.monPersonnage.animer();\n    }\n}\n// --- Exemple de Fabrique Concrete ---\nclass SimulateurTroll extends Simulateur {\n    @Override\n    public Personnage creerPersonnage(String nom) {\n        // Seule cette classe sait qu'elle cree un Troll\n        return new Troll(nom);\n    }\n}\n4. Pourquoi est-ce mieux ? (Analyse)\n- Flexibilite : On ajoute un type de personnage simplement en creant deux nouvelles classes (Produit et\nService), sans toucher au moteur existant."
+        "title": "ACCORD DE CONFIDENTIALITE",
+        "content": "(V2)"
     },
     {
-        "title": "CORRIGE",
-        "content": "- TP : Design Pattern Factory Method\nJeu d'Aventure : Troll, Orc et Humain\n- Encapsulation : Le code client ne voit jamais le mot-cle 'new' pour les personnages concrets.\n- Inconvenient : Le nombre de classes augmente (proliferation de classes)."
+        "title": "Article 1",
+        "content": "- Objet\nLe présent contrat définit les conditions de partage d'informations entre les parties."
+    },
+    {
+        "title": "Article 2",
+        "content": "- Duree\nLes obligations de confidentialité resteront en vigueur pendant une duree de 48 mois."
+    },
+    {
+        "title": "Article 3",
+        "content": "- Propriete\nToute information transmise reste la propriete exclusive de l'emetteur. Cela inclut egalement les\ndonnees partagees avec des sous-traitants."
+    },
+    {
+        "title": "Article 4",
+        "content": "- Penalites\nEn cas de manquement, une amende forfaitaire de 25000 euros sera appliquee sans delai."
+    },
+    {
+        "title": "Article 5",
+        "content": "- Juridiction\nTout litige sera soumis au tribunal de commerce de Lyon."
     }
 ]

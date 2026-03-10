@@ -208,6 +208,158 @@
             display: none;
         }
 
+        .clause-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .clause-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            border-color: var(--border-hover);
+        }
+
+        .clause-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 1rem;
+        }
+
+        .clause-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .badge {
+            padding: 0.35rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+            text-transform: uppercase;
+        }
+
+        .badge-exact {
+            background: #f0f9ff;
+            color: #0284c7;
+            border: 1px solid #bae6fd;
+        }
+
+        .badge-modified {
+            background: #fefce8;
+            color: #a16207;
+            border: 1px solid #fef08a;
+        }
+
+        .badge-added {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-deleted {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .ai-analysis {
+            margin: 0 0 1.5rem 0;
+            padding: 1.25rem;
+            background: linear-gradient(to right, #f8fafc, #ffffff);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            border-left-width: 4px;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.05rem;
+        }
+
+        .crit-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .criticality-faible {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .criticality-moyen {
+            background: #fef08a;
+            color: #854d0e;
+        }
+
+        .criticality-elevé {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Because LLM sometimes outputs 'élevé' or 'eleve', let's cover classes */
+        .criticality-eleve {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .clause-content-compare {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .clause-col {
+            flex: 1;
+        }
+
+        .clause-col h4 {
+            margin: 0 0 0.75rem 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .clause-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            background: #ffffff;
+            padding: 1.25rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            white-space: pre-wrap;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            .clause-content-compare {
+                flex-direction: column;
+            }
+        }
+
         /* Utilitaire pour masquer/afficher */
         .hidden {
             display: none !important;
@@ -377,31 +529,98 @@
                 resultsDiv.style.display = 'block';
 
                 if (response.ok) {
-                    resultsDiv.innerHTML = `
-                        <div style="background-color: #dcfce7; color: #166534; padding: 1rem; border-radius: 8px; border: 1px solid #bbf7d0;">
-                            <h3 style="margin-top: 0;">Succès !</h3>
+                    let html = `
+                        <div style="background-color: #dcfce7; color: #166534; padding: 1rem; border-radius: 8px; border: 1px solid #bbf7d0; margin-bottom: 2rem;">
+                            <h3 style="margin-top: 0;">Analyse Terminée</h3>
                             <p>${data.message}</p>
-                            <ul>
-                                ${data.files.map(f => `<li>${f}</li>`).join('')}
-                            </ul>
                         </div>
+                        <h2>Résultats de la comparaison</h2>
                     `;
+
+                    data.mapping.forEach((match, index) => {
+                        let title = match.v1_clause?.title || match.v2_clause?.title || `Clause #${index + 1}`;
+                        if (!title.trim()) title = `Clause #${index + 1}`;
+
+                        let badgeClass = "badge-exact";
+                        let badgeText = "Identique";
+
+                        // Fix logical bug: "matched_by_title" shouldn't be identical if text changed
+                        if (match.status === "added") {
+                            badgeClass = "badge-added";
+                            badgeText = "Ajouté";
+                        } else if (match.status === "deleted") {
+                            badgeClass = "badge-deleted";
+                            badgeText = "Supprimé";
+                        } else if (match.v1_clause && match.v2_clause) {
+                            if (match.v1_clause.content.trim() !== match.v2_clause.content.trim()) {
+                                badgeClass = "badge-modified";
+                                badgeText = "Modifié";
+                            }
+                        }
+
+                        // Ignorer les clauses identiques pour ne pas surcharger l'affichage
+                        if (badgeClass === "badge-exact") {
+                            return;
+                        }
+
+                        let aiHtml = "";
+                        if (match.ai_analysis && match.ai_analysis.has_semantic_change) {
+                            const crit = match.ai_analysis.criticality.toLowerCase(); // faible, moyen, elevé / eleve
+                            const critClass = `criticality-${crit.replace('é', 'e')}`;
+
+                            aiHtml = `
+                                <div class="ai-analysis">
+                                    <div class="ai-header">
+                                        ✨ Insight IA <span class="crit-badge ${critClass}">${match.ai_analysis.criticality}</span>
+                                    </div>
+                                    <div style="font-size: 0.95rem; color: var(--text-main); line-height: 1.5;">
+                                        ${match.ai_analysis.explanation}
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        let col1Html = match.v1_clause ? `<div class="clause-text">${match.v1_clause.content}</div>` : `<div class="clause-text" style="color: #94a3b8; font-style: italic;">Aucune version (Clause ajoutée)</div>`;
+                        let col2Html = match.v2_clause ? `<div class="clause-text">${match.v2_clause.content}</div>` : `<div class="clause-text" style="color: #94a3b8; font-style: italic;">Aucune version (Clause supprimée)</div>`;
+
+                        html += `
+                            <div class="clause-card">
+                                <div class="clause-header">
+                                    <h3 class="clause-title">${title}</h3>
+                                    <span class="badge ${badgeClass}">${badgeText}</span>
+                                </div>
+                                ${aiHtml}
+                                <div class="clause-content-compare">
+                                    <div class="clause-col">
+                                        <h4>Version Originale (V1)</h4>
+                                        ${col1Html}
+                                    </div>
+                                    <div class="clause-col">
+                                        <h4>Version Modifiée (V2)</h4>
+                                        ${col2Html}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    resultsDiv.innerHTML = html;
                 } else {
                     resultsDiv.innerHTML = `
                         <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; border: 1px solid #fecaca;">
                             <h3 style="margin-top: 0;">Erreur</h3>
-                            <p>${data.detail || 'Une erreur est survenue lors de l\'envoi.'}</p>
+                            <p>${data.detail || "Une erreur est survenue lors de l'envoi."}</p>
                         </div>
-                    `;
+                        `;
                 }
             } catch (error) {
                 const resultsDiv = document.getElementById('results');
                 resultsDiv.style.display = 'block';
                 resultsDiv.innerHTML = `
-                    <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; border: 1px solid #fecaca;">
+                        < div style = "background-color: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; border: 1px solid #fecaca;" >
                         <h3 style="margin-top: 0;">Erreur réseau</h3>
                         <p>Impossible de joindre le serveur. Assurez-vous que le backend FastAPI est en cours d'exécution.</p>
-                    </div>
+                    </div >
                 `;
             } finally {
                 compareBtn.disabled = false;
