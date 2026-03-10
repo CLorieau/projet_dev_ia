@@ -17,6 +17,49 @@
             --border: #e2e8f0;
             --border-hover: #cbd5e1;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --neon-glow: 0 0 10px rgba(79, 70, 229, 0.5), 0 0 20px rgba(79, 70, 229, 0.3);
+            --neon-border: #4f46e5;
+            --summary-bg: linear-gradient(to right, #f8fafc, #ffffff);
+            --card-bg: #ffffff;
+            --badge-exact-bg: #f0f9ff;
+            --badge-exact-text: #0284c7;
+            --badge-exact-border: #bae6fd;
+            --badge-mod-bg: #fefce8;
+            --badge-mod-text: #a16207;
+            --badge-mod-border: #fef08a;
+            --badge-add-bg: #f0fdf4;
+            --badge-add-text: #166534;
+            --badge-add-border: #bbf7d0;
+            --badge-del-bg: #fef2f2;
+            --badge-del-text: #991b1b;
+            --badge-del-border: #fecaca;
+        }
+
+        body.dark-mode {
+            --primary: #818cf8;
+            --primary-hover: #6366f1;
+            --bg-color: #0f172a;
+            --surface: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --border-hover: #475569;
+            --neon-glow: 0 0 15px rgba(129, 140, 248, 0.7), 0 0 30px rgba(129, 140, 248, 0.4);
+            --neon-border: #818cf8;
+            --summary-bg: linear-gradient(to right, #1e293b, #0f172a);
+            --card-bg: #1e293b;
+            --badge-exact-bg: rgba(2, 132, 199, 0.2);
+            --badge-exact-text: #7dd3fc;
+            --badge-exact-border: rgba(2, 132, 199, 0.5);
+            --badge-mod-bg: rgba(161, 98, 7, 0.2);
+            --badge-mod-text: #fde047;
+            --badge-mod-border: rgba(161, 98, 7, 0.5);
+            --badge-add-bg: rgba(22, 101, 52, 0.2);
+            --badge-add-text: #86efac;
+            --badge-add-border: rgba(22, 101, 52, 0.5);
+            --badge-del-bg: rgba(153, 27, 27, 0.2);
+            --badge-del-text: #fca5a5;
+            --badge-del-border: rgba(153, 27, 27, 0.5);
         }
 
         body {
@@ -250,33 +293,33 @@
         }
 
         .badge-exact {
-            background: #f0f9ff;
-            color: #0284c7;
-            border: 1px solid #bae6fd;
+            background: var(--badge-exact-bg);
+            color: var(--badge-exact-text);
+            border: 1px solid var(--badge-exact-border);
         }
 
         .badge-modified {
-            background: #fefce8;
-            color: #a16207;
-            border: 1px solid #fef08a;
+            background: var(--badge-mod-bg);
+            color: var(--badge-mod-text);
+            border: 1px solid var(--badge-mod-border);
         }
 
         .badge-added {
-            background: #f0fdf4;
-            color: #166534;
-            border: 1px solid #bbf7d0;
+            background: var(--badge-add-bg);
+            color: var(--badge-add-text);
+            border: 1px solid var(--badge-add-border);
         }
 
         .badge-deleted {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
+            background: var(--badge-del-bg);
+            color: var(--badge-del-text);
+            border: 1px solid var(--badge-del-border);
         }
 
         .ai-analysis {
             margin: 0 0 1.5rem 0;
             padding: 1.25rem;
-            background: linear-gradient(to right, #f8fafc, #ffffff);
+            background: var(--summary-bg);
             border-left: 4px solid var(--primary);
             border-radius: 8px;
             border: 1px solid var(--border);
@@ -302,24 +345,35 @@
         }
 
         .criticality-faible {
-            background: #dcfce7;
+            background: rgba(22, 101, 52, 0.15);
             color: #166534;
+            border: 1px solid rgba(22, 101, 52, 0.3);
         }
 
         .criticality-moyen {
-            background: #fef08a;
+            background: rgba(161, 98, 7, 0.15);
             color: #854d0e;
+            border: 1px solid rgba(161, 98, 7, 0.3);
         }
 
-        .criticality-elevé {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* Because LLM sometimes outputs 'élevé' or 'eleve', let's cover classes */
+        .criticality-elevé,
         .criticality-eleve {
-            background: #fee2e2;
+            background: rgba(153, 27, 27, 0.15);
             color: #991b1b;
+            border: 1px solid rgba(153, 27, 27, 0.3);
+        }
+
+        body.dark-mode .criticality-faible {
+            color: #86efac;
+        }
+
+        body.dark-mode .criticality-moyen {
+            color: #fde047;
+        }
+
+        body.dark-mode .criticality-elevé,
+        body.dark-mode .criticality-eleve {
+            color: #fca5a5;
         }
 
         .clause-content-compare {
@@ -345,13 +399,32 @@
             font-size: 0.95rem;
             line-height: 1.6;
             color: var(--text-main);
-            background: #ffffff;
+            background: var(--card-bg);
             padding: 1.25rem;
             border-radius: 12px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             white-space: pre-wrap;
             height: 100%;
             box-sizing: border-box;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 2.5rem;
+            right: 2.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
         @media (max-width: 768px) {
@@ -376,7 +449,8 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="container" style="position: relative;">
+        <button id="themeToggleBtn" class="theme-toggle">🌙 Mode Sombre</button>
         <header>
             <h1>Comparateur de Contrats IA</h1>
             <p class="subtitle">Importez vos deux versions de contrats (PDF) pour analyser les modifications
@@ -436,6 +510,16 @@
         const fileV1 = document.getElementById('fileV1');
         const fileV2 = document.getElementById('fileV2');
         const compareBtn = document.getElementById('compareBtn');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                themeToggleBtn.textContent = '☀️ Mode Clair';
+            } else {
+                themeToggleBtn.textContent = '🌙 Mode Sombre';
+            }
+        });
 
         function setupUploadZone(inputId, dropZoneId, contentId, infoId, nameId, previewContId, previewFrameId) {
             const input = document.getElementById(inputId);
@@ -529,11 +613,26 @@
                 resultsDiv.style.display = 'block';
 
                 if (response.ok) {
+                    let summaryHtml = "";
+                    if (data.summary) {
+                        summaryHtml = `
+                            <div style="background: var(--summary-bg); border: 2px solid var(--neon-border); border-radius: 12px; padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--neon-glow); transition: all 0.3s ease;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-weight: 800; color: var(--neon-border); font-size: 1.25rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                                    🚀 Résumé Exécutif IA
+                                </div>
+                                <div style="font-size: 1.05rem; color: var(--text-main); line-height: 1.7; white-space: pre-wrap;">
+                                    ${data.summary}
+                                </div>
+                            </div>
+                        `;
+                    }
+
                     let html = `
                         <div style="background-color: #dcfce7; color: #166534; padding: 1rem; border-radius: 8px; border: 1px solid #bbf7d0; margin-bottom: 2rem;">
                             <h3 style="margin-top: 0;">Analyse Terminée</h3>
                             <p>${data.message}</p>
                         </div>
+                        ${summaryHtml}
                         <h2>Résultats de la comparaison</h2>
                     `;
 

@@ -75,3 +75,58 @@ async def analyze_clause_diff(text_v1: str, text_v2: str) -> dict:
             "criticality": "aucun",
             "explanation": f"Erreur lors de l'appel à l'API IA : {str(e)}"
         }
+
+async def generate_global_summary(mapping_results: list) -> str:
+    """
+    Génère un résumé exécutif global à partir des résultats de l'analyse des clauses.
+    """
+    # 1. Compiler les informations importantes du mapping
+    changes_text = []
+    
+    for i, match in enumerate(mapping_results):
+        title = match.get('v1_clause', {}).get('title') or match.get('v2_clause', {}).get('title') or f"Clause #{i+1}"
+        status = match.get('status')
+        ai = match.get('ai_analysis')
+        
+        if status == "added":
+            changes_text.append(f"- {title} : Ajoutée.")
+        elif status == "deleted":
+            changes_text.append(f"- {title} : Supprimée.")
+        elif ai and ai.get('has_semantic_change'):
+            crit = ai.get('criticality', 'inconnu')
+            exp = ai.get('explanation', '')
+            changes_text.append(f"- {title} : Modifiée (Criticité: {crit}. Explication: {exp})")
+            
+    if not changes_text:
+        return "Aucun changement sémantique, ajout ou suppression n'a été détecté entre les deux contrats."
+
+    # 2. Préparer le prompt pour l'IA
+    system_instruction = (
+        "Tu es un expert en synthèse et stratégie d'entreprise. Ton rôle est de fournir un résumé exécutif "
+        "d'une comparaison de contrat.\n"
+        "Voici les règles :\n"
+        "1. Fais un résumé global de 4 à 5 phrases maximum.\n"
+        "2. Va à l'essentiel et mets en évidence les risques principaux (les changements de criticité 'élevé' ou 'moyen').\n"
+        "3. Ne fais pas de jargon juridique, utilise des mots simples et clairs.\n"
+        "4. Si le contrat n'a que des changements mineurs ('faible'), indique-le de manière rassurante."
+    )
+    
+    user_prompt = (
+        "Voici la liste des modifications détectées dans le contrat :\n\n"
+        + "\n".join(changes_text) +
+        "\n\nRédige le résumé exécutif global."
+    )
+    
+    # 3. Appel à Gemini
+    try:
+        response = await client.aio.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=user_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                temperature=0.2
+            )
+        )
+        return response.text.strip() if response.text else "Impossible de générer le résumé."
+    except Exception as e:
+        return f"Erreur lors de la génération du résumé global : {str(e)}"

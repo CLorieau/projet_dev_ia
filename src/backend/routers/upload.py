@@ -3,7 +3,7 @@ import asyncio
 from fastapi import APIRouter, File, UploadFile, HTTPException
 from utils.pdf_parser import extract_text_from_pdf, segment_into_clauses
 from utils.comparator import match_clauses
-from utils.ai_analyzer import analyze_clause_diff
+from utils.ai_analyzer import analyze_clause_diff, generate_global_summary
 
 router = APIRouter()
 
@@ -55,9 +55,13 @@ async def upload_contracts(
         
     mapping = await asyncio.gather(*(analyze_match(m) for m in raw_mapping))
     
+    # Génération du résumé exécutif global
+    global_summary = await generate_global_summary(mapping)
+    
     return {
-        "message": "Fichiers traités et segmentés avec succès. Résultats sauvegardés dans v1.json et v2.json.",
+        "message": "Fichiers traités et segmentés avec succès.",
         "file1_clauses": clauses1,
         "file2_clauses": clauses2,
-        "mapping": mapping
+        "mapping": mapping,
+        "summary": global_summary
     }
