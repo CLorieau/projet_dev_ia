@@ -358,8 +358,55 @@
         setupUploadZone('fileV2', 'dropZone2', 'uploadContent2', 'fileInfo2', 'fileName2', 'previewContainer2', 'preview2');
 
         // Événement pour le bouton (à connecter au backend par la suite)
-        compareBtn.addEventListener('click', () => {
-            alert('Lancement de la comparaison (à implémenter avec le backend)');
+        compareBtn.addEventListener('click', async () => {
+            const formData = new FormData();
+            formData.append('file1', fileV1.files[0]);
+            formData.append('file2', fileV2.files[0]);
+
+            compareBtn.disabled = true;
+            compareBtn.textContent = 'Envoi en cours...';
+
+            try {
+                const response = await fetch('http://localhost:8000/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.style.display = 'block';
+
+                if (response.ok) {
+                    resultsDiv.innerHTML = `
+                        <div style="background-color: #dcfce7; color: #166534; padding: 1rem; border-radius: 8px; border: 1px solid #bbf7d0;">
+                            <h3 style="margin-top: 0;">Succès !</h3>
+                            <p>${data.message}</p>
+                            <ul>
+                                ${data.files.map(f => `<li>${f}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; border: 1px solid #fecaca;">
+                            <h3 style="margin-top: 0;">Erreur</h3>
+                            <p>${data.detail || 'Une erreur est survenue lors de l\'envoi.'}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = `
+                    <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; border: 1px solid #fecaca;">
+                        <h3 style="margin-top: 0;">Erreur réseau</h3>
+                        <p>Impossible de joindre le serveur. Assurez-vous que le backend FastAPI est en cours d'exécution.</p>
+                    </div>
+                `;
+            } finally {
+                compareBtn.disabled = false;
+                compareBtn.textContent = 'Comparer les Contrats';
+            }
         });
 
     </script>
