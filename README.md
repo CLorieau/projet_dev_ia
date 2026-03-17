@@ -42,10 +42,7 @@ Lancer le serveur :
 uvicorn main:app --reload
 ```
 
-Accéder à l’application via :
+Accéder à l’application via en ouvrant le fichier **index.html** dans votre navigateur.
 
-```
-http://127.0.0.1:8000
-```
 
 Uploader les deux versions du contrat (PDF uniquement) pour obtenir l’analyse des modifications.
